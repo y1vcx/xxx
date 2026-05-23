@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مساحتي · التداول</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f14;--s1:#141720;--s2:#1c2030;--s3:#242840;
+  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.13);
+  --t:#e8eaf0;--t2:#9ca3af;--t3:#4b5563;
+  --blue:#3b82f6;--blue-d:rgba(59,130,246,0.12);--blue-b:rgba(59,130,246,0.25);
+  --amber:#f59e0b;--amber-d:rgba(245,158,11,0.12);--amber-b:rgba(245,158,11,0.25);
+  --green:#10b981;--green-d:rgba(16,185,129,0.12);--green-b:rgba(16,185,129,0.25);
+  --purple:#8b5cf6;--purple-d:rgba(139,92,246,0.12);--purple-b:rgba(139,92,246,0.25);
+  --red:#ef4444;--red-d:rgba(239,68,68,0.12);
+  --radius:12px;--radius-sm:8px;--sidebar:220px;
+}
+html,body{height:100%;background:var(--bg);color:var(--t);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:14px;line-height:1.6;overflow:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,textarea{font-family:inherit;outline:none;border:none}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--s1);border-left:1px solid var(--b);
+  display:flex;flex-direction:column;
+  transition:transform 0.3s ease;z-index:100;
+}
+.sidebar-logo{
+  padding:24px 20px 16px;
+  border-bottom:1px solid var(--b);
+}
+.sidebar-logo .logo-text{font-size:15px;font-weight:600;color:var(--t)}
+.sidebar-logo .logo-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:var(--radius-sm);
+  color:var(--t2);cursor:pointer;
+  transition:all 0.15s;margin-bottom:2px;
+  font-size:13px;font-weight:400;
+}
+.nav-item:hover{background:var(--s2);color:var(--t)}
+.nav-item.active{background:var(--blue-d);color:var(--blue)}
+.nav-item .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-item .nav-badge{
+  margin-right:auto;font-size:10px;
+  background:var(--blue-d);color:var(--blue);
+  padding:1px 6px;border-radius:99px;
+}
+.sidebar-footer{padding:12px 10px;border-top:1px solid var(--b)}
+.settings-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:var(--radius-sm);
+  background:transparent;color:var(--t3);
+  width:100%;font-size:13px;
+  transition:all 0.15s;
+}
+.settings-btn:hover{background:var(--s2);color:var(--t2)}
+
+/* MAIN */
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.topbar{
+  padding:16px 24px;border-bottom:1px solid var(--b);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--s1);flex-shrink:0;
+}
+.topbar-title{font-size:16px;font-weight:500}
+.hamburger{display:none;background:none;color:var(--t2);font-size:20px;padding:4px}
+.page-wrap{flex:1;overflow-y:auto;padding:24px}
+
+/* PAGES */
+.page{display:none;animation:fadeIn 0.2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{
+  background:var(--s1);border:1px solid var(--b);
+  border-radius:var(--radius);padding:20px;
+  margin-bottom:16px;
+}
+.card-title{font-size:13px;font-weight:500;color:var(--t2);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* STAT CARDS */
+.stat-card{
+  background:var(--s2);border:1px solid var(--b);
+  border-radius:var(--radius);padding:16px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.stat-label{font-size:11px;color:var(--t3);font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+.stat-value{font-size:26px;font-weight:600;letter-spacing:-0.5px}
+.stat-sub{font-size:12px;color:var(--t2)}
+
+/* PROGRESS */
+.progress-bar{height:4px;background:var(--b2);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.5s ease}
+
+/* STREAK */
+.streak-ring{
+  display:flex;align-items:center;justify-content:center;
+  width:80px;height:80px;border-radius:50%;
+  border:3px solid var(--amber);
+  font-size:28px;font-weight:600;color:var(--amber);
+  position:relative;flex-shrink:0;
+}
+
+/* PHASE CARDS */
+.phase{
+  background:var(--s1);border:1px solid var(--b);
+  border-radius:var(--radius);margin-bottom:12px;overflow:hidden;
+}
+.phase-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;cursor:pointer;
+  transition:background 0.15s;
+}
+.phase-header:hover{background:var(--s2)}
+.phase-header-right{display:flex;align-items:center;gap:12px}
+.phase-num{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:600;flex-shrink:0;
+}
+.phase-meta{font-size:13px;font-weight:500}
+.phase-sub{font-size:12px;color:var(--t3);margin-top:1px}
+.phase-body{display:none;padding:0 20px 20px;border-top:1px solid var(--b)}
+.phase.open .phase-body{display:block}
+.phase-chevron{color:var(--t3);font-size:12px;transition:transform 0.2s}
+.phase.open .phase-chevron{transform:rotate(180deg)}
+
+/* CHECKLIST */
+.checklist{margin-top:14px}
+.check-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--b);
+  cursor:pointer;
+}
+.check-item:last-child{border-bottom:none}
+.check-item:hover .check-label{color:var(--t)}
+.check-box{
+  width:18px;height:18px;border-radius:5px;
+  border:1.5px solid var(--b2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.check-item.done .check-box{background:var(--green);border-color:var(--green)}
+.check-item.done .check-label{color:var(--t3);text-decoration:line-through}
+.check-label{font-size:13px;color:var(--t2);transition:color 0.15s}
+.check-tick{color:white;font-size:11px;font-weight:700}
+
+/* RESOURCES */
+.resources{margin-top:14px}
+.res-title{font-size:11px;font-weight:500;color:var(--t3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+.res-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--t2);padding:6px 0;
+}
+.res-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* BADGE */
+.badge{
+  font-size:11px;font-weight:500;
+  padding:3px 10px;border-radius:99px;
+}
+.badge-blue{background:var(--blue-d);color:var(--blue)}
+.badge-amber{background:var(--amber-d);color:var(--amber)}
+.badge-green{background:var(--green-d);color:var(--green)}
+.badge-purple{background:var(--purple-d);color:var(--purple)}
+
+/* NOTES */
+.note-card{
+  background:var(--s2);border:1px solid var(--b);
+  border-radius:var(--radius);padding:16px;
+  margin-bottom:10px;
+}
+.note-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.note-title-input{
+  background:transparent;color:var(--t);
+  font-size:14px;font-weight:500;
+  border-bottom:1px solid transparent;
+  padding-bottom:2px;width:100%;
+  transition:border-color 0.15s;
+}
+.note-title-input:focus{border-bottom-color:var(--b2)}
+.note-body-input{
+  background:transparent;color:var(--t2);
+  font-size:13px;width:100%;resize:none;
+  min-height:60px;line-height:1.6;
+}
+.note-date{font-size:11px;color:var(--t3);margin-top:8px}
+.btn-icon{
+  background:none;color:var(--t3);font-size:16px;
+  padding:4px;border-radius:6px;transition:all 0.15s;flex-shrink:0;
+}
+.btn-icon:hover{background:var(--red-d);color:var(--red)}
+
+/* MEDIA */
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.media-item{position:relative;border-radius:var(--radius-sm);overflow:hidden;aspect-ratio:1;background:var(--s2)}
+.media-item img{width:100%;height:100%;object-fit:cover}
+.media-caption{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(0,0,0,0.7);padding:6px 8px;
+}
+.media-caption input{
+  background:transparent;color:white;
+  font-size:11px;width:100%;
+}
+.media-del{
+  position:absolute;top:6px;left:6px;
+  background:rgba(0,0,0,0.7);border:none;
+  color:var(--red);border-radius:6px;padding:3px 6px;
+  font-size:12px;cursor:pointer;
+}
+.upload-zone{
+  border:1.5px dashed var(--b2);border-radius:var(--radius);
+  padding:32px;text-align:center;cursor:pointer;
+  color:var(--t3);transition:all 0.15s;margin-bottom:16px;
+}
+.upload-zone:hover{border-color:var(--blue);color:var(--blue)}
+
+/* CIRCULAR PROGRESS */
+.circ-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.circ-svg{transform:rotate(-90deg)}
+.circ-bg{fill:none;stroke:var(--b2);stroke-width:8}
+.circ-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.circ-label{font-size:28px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+.circ-sub{font-size:12px;fill:var(--t3);text-anchor:middle}
+
+/* ABDULLAH */
+.abd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.abd-phase-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--b);
+  font-size:13px;
+}
+.abd-phase-row:last-child{border-bottom:none}
+
+/* AI CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 140px)}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:75%;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;line-height:1.6}
+.msg.user{background:var(--blue-d);border:1px solid var(--blue-b);align-self:flex-start}
+.msg.ai{background:var(--s2);border:1px solid var(--b);align-self:flex-end}
+.msg.system{background:var(--purple-d);border:1px solid var(--purple-b);align-self:center;font-size:12px;color:var(--t2)}
+.chat-input-wrap{
+  padding:16px;border-top:1px solid var(--b);
+  display:flex;gap:10px;align-items:flex-end;
+  background:var(--s1);
+}
+.chat-input{
+  flex:1;background:var(--s2);border:1px solid var(--b);
+  border-radius:var(--radius-sm);padding:10px 14px;
+  color:var(--t);font-size:13px;resize:none;min-height:40px;max-height:100px;
+  transition:border-color 0.15s;
+}
+.chat-input:focus{border-color:var(--b2)}
+.chat-send{
+  background:var(--blue);color:white;border-radius:var(--radius-sm);
+  padding:10px 16px;font-size:13px;font-weight:500;
+  transition:opacity 0.15s;flex-shrink:0;
+}
+.chat-send:hover{opacity:0.85}
+.typing{display:flex;gap:4px;padding:10px 14px;background:var(--s2);border:1px solid var(--b);border-radius:var(--radius-sm);width:fit-content;align-self:flex-end}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:0.2s}
+.dot:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* OVERLAY / MODAL */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.6);
+  display:none;align-items:center;justify-content:center;z-index:999;
+  backdrop-filter:blur(4px);
+}
+.overlay.open{display:flex}
+.modal{
+  background:var(--s1);border:1px solid var(--b2);
+  border-radius:var(--radius);padding:28px;
+  width:100%;max-width:380px;
+}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:20px}
+.modal-input{
+  background:var(--s2);border:1px solid var(--b);
+  border-radius:var(--radius-sm);padding:10px 14px;
+  color:var(--t);font-size:13px;width:100%;margin-bottom:12px;
+}
+.modal-input:focus{border-color:var(--b2)}
+.btn{
+  padding:10px 18px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;transition:all 0.15s;
+}
+.btn-primary{background:var(--blue);color:white}
+.btn-primary:hover{opacity:0.85}
+.btn-ghost{background:var(--s2);color:var(--t2);border:1px solid var(--b)}
+.btn-ghost:hover{background:var(--s3)}
+.btn-danger{background:var(--red-d);color:var(--red);border:1px solid transparent}
+.btn-danger:hover{border-color:var(--red)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.modal-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--b)}
+.modal-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.modal-label{font-size:12px;color:var(--t3);margin-bottom:6px}
+
+/* LOCKED */
+.locked-overlay{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px;color:var(--t3);text-align:center;gap:8px;
+}
+.locked-icon{font-size:32px;margin-bottom:4px}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--b);margin:16px 0}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{
+    position:fixed;right:0;top:0;bottom:0;
+    transform:translateX(100%);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .hamburger{display:flex}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .abd-grid{grid-template-columns:1fr}
+  .media-grid{grid-template-columns:repeat(2,1fr)}
+  .page-wrap{padding:16px}
+  .topbar{padding:12px 16px}
+  .overlay-bg{display:block}
+}
+.overlay-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.5);z-index:99;
+}
+
+/* MISC */
+.flex{display:flex}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}
+.mb-8{margin-bottom:8px}.mb-16{margin-bottom:16px}
+.text-sm{font-size:12px}.text-muted{color:var(--t2)}.text-dim{color:var(--t3)}
+.font-500{font-weight:500}.font-600{font-weight:600}
+.w-full{width:100%}
+.note-preview{font-size:12px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:18px;font-weight:600}
+.add-btn{
+  background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b);
+  border-radius:var(--radius-sm);padding:8px 14px;font-size:12px;font-weight:500;
+  transition:all 0.15s;
+}
+.add-btn:hover{background:var(--blue);color:white}
+.empty-state{text-align:center;padding:48px 24px;color:var(--t3)}
+.empty-icon{font-size:32px;margin-bottom:8px}
+.loading-bar{width:100%;height:2px;background:var(--b);overflow:hidden;border-radius:1px}
+.loading-fill{height:100%;background:var(--blue);animation:loading 1s ease-in-out infinite;width:40%}
+@keyframes loading{0%{transform:translateX(150%)}100%{transform:translateX(-200%)}}
+</style>
+</head>
+<body>
+<div class="overlay-bg" id="overlayBg" onclick="closeSidebar()"></div>
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-title">⚙️ الإعدادات</div>
+    <div class="modal-section">
+      <div class="modal-label">اسمك</div>
+      <input class="modal-input" id="nameInput" placeholder="اكتب اسمك">
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">الـ Streak</div>
+      <button class="btn btn-ghost w-full" onclick="resetStreak()" style="text-align:right">🔄 إعادة تعيين الـ Streak</button>
+    </div>
+    <div class="modal-section">
+      <div class="modal-label" style="color:var(--red)">منطقة الخطر</div>
+      <button class="btn btn-danger w-full" onclick="clearAll()" style="text-align:right">🗑️ مسح كل البيانات</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeSettings()">إغلاق</button>
+      <button class="btn btn-primary" onclick="saveName()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">مساحتي</div>
+      <div class="logo-sub">رحلة التداول</div>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" onclick="goTo('home',this)"><span class="nav-icon">🏠</span>الرئيسية</div>
+      <div class="nav-item" onclick="goTo('timeline',this)"><span class="nav-icon">📅</span>الخطة الزمنية</div>
+      <div class="nav-item" onclick="goTo('notes',this)"><span class="nav-icon">📝</span>الملاحظات</div>
+      <div class="nav-item" onclick="goTo('media',this)"><span class="nav-icon">🖼️</span>الوسائط</div>
+      <div class="nav-item" onclick="goTo('abdullah',this)"><span class="nav-icon">👁️</span>عبدالله</div>
+      <div class="nav-item" onclick="goTo('agent',this)"><span class="nav-icon">🤖</span>AI Agent</div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="settings-btn" onclick="openSettings()"><span>⚙️</span> الإعدادات</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbarTitle">الرئيسية</div>
+      <div style="font-size:12px;color:var(--t3)" id="liveTime"></div>
+    </div>
+    <div class="page-wrap">
+
+      <!-- HOME -->
+      <div class="page active" id="page-home">
+        <div class="flex items-center justify-between mb-16">
+          <div>
+            <div style="font-size:22px;font-weight:600" id="welcomeMsg">أهلاً 👋</div>
+            <div class="text-dim text-sm mt-4" id="dateDisplay"></div>
+          </div>
+          <div class="streak-ring" id="streakRing">0</div>
+        </div>
+
+        <div class="grid-4 mb-16">
+          <div class="stat-card">
+            <div class="stat-label">التقدم الكلي</div>
+            <div class="stat-value" id="totalPct">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="totalBar" style="width:0%;background:var(--blue)"></div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">المرحلة الحالية</div>
+            <div class="stat-value" id="currentPhase" style="font-size:16px;margin-top:4px">المرحلة ١</div>
+            <div class="stat-sub mt-4" id="currentPhaseProgress">0/8 مهمة</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">الملاحظات</div>
+            <div class="stat-value" id="notesCount">0</div>
+            <div class="stat-sub">ملاحظة محفوظة</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">الـ Streak</div>
+            <div class="stat-value" id="streakNum" style="color:var(--amber)">0</div>
+            <div class="stat-sub">يوم متواصل</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">آخر الملاحظات</div>
+          <div id="recentNotes"><div class="empty-state" style="padding:20px"><div class="text-dim">لا توجد ملاحظات بعد</div></div></div>
+        </div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="page" id="page-timeline">
+        <div class="section-header">
+          <div class="section-title">الخطة الزمنية</div>
+          <div class="text-sm text-dim" id="timelineOverall"></div>
+        </div>
+
+        <!-- Phase 1 -->
+        <div class="phase" id="phase1">
+          <div class="phase-header" onclick="togglePhase('phase1')">
+            <div class="phase-header-right">
+              <div class="phase-num" style="background:var(--blue-d);color:var(--blue)">١</div>
+              <div>
+                <div class="phase-meta">المرحلة الأولى: الأساس</div>
+                <div class="phase-sub">شهر 1-2 · فهم كيف يشتغل كل شي</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-12">
+              <span class="badge badge-blue" id="p1badge">0/8</span>
+              <span class="badge badge-blue">شهر 1-2</span>
+              <span class="phase-chevron">▼</span>
+            </div>
+          </div>
+          <div class="phase-body">
+            <div class="progress-bar"><div class="progress-fill" id="p1bar" style="width:0%;background:var(--blue)"></div></div>
+            <div class="checklist" id="checklist-p1">
+              <div class="check-item" onclick="toggleCheck(this,'p1_0')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">بلوكتشين — كيف يشتغل</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p1_1')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Bitcoin & Ethereum</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p1_2')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Wallets & Exchanges</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p1_3')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Market Orders</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p1_4')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Limit Orders</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p1_5')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Stop Loss</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p1_6')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">شمعات يابانية</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p1_7')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">دعم ومقاومة</span></div>
+            </div>
+            <div class="resources">
+              <div class="res-title">المصادر</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--blue)"></div>Binance Academy — مجانية كاملة</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--blue)"></div>Investopedia — شرح بصري</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--blue)"></div>Demo account — ByBit أو Binance Testnet</div>
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:var(--t3)">⏱ 30-45 دقيقة يومياً</div>
+          </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase" id="phase2">
+          <div class="phase-header" onclick="togglePhase('phase2')">
+            <div class="phase-header-right">
+              <div class="phase-num" style="background:var(--amber-d);color:var(--amber)">٢</div>
+              <div>
+                <div class="phase-meta">المرحلة الثانية: التحليل</div>
+                <div class="phase-sub">شهر 3-4 · تقرأ السوق ما تخمن</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-12">
+              <span class="badge badge-amber" id="p2badge">0/7</span>
+              <span class="badge badge-amber">شهر 3-4</span>
+              <span class="phase-chevron">▼</span>
+            </div>
+          </div>
+          <div class="phase-body">
+            <div class="progress-bar"><div class="progress-fill" id="p2bar" style="width:0%;background:var(--amber)"></div></div>
+            <div class="checklist" id="checklist-p2">
+              <div class="check-item" onclick="toggleCheck(this,'p2_0')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">RSI</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p2_1')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">MACD</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p2_2')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Bollinger Bands</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p2_3')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">حجم التداول</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p2_4')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">تحليل الأخبار</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p2_5')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">نماذج الشارت</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p2_6')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">تحديد Trend</span></div>
+            </div>
+            <div class="resources">
+              <div class="res-title">المصادر</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--amber)"></div>Benjamin Cowen — يوتيوب</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--amber)"></div>Crypto Banter — تحليل يومي</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--amber)"></div>TradingView — مجاني</div>
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:var(--t3)">⏱ 45-60 دقيقة يومياً</div>
+          </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase" id="phase3">
+          <div class="phase-header" onclick="togglePhase('phase3')">
+            <div class="phase-header-right">
+              <div class="phase-num" style="background:var(--green-d);color:var(--green)">٣</div>
+              <div>
+                <div class="phase-meta">المرحلة الثالثة: التطبيق</div>
+                <div class="phase-sub">شهر 5-6 · استراتيجية + إدارة مخاطر</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-12">
+              <span class="badge badge-green" id="p3badge">0/6</span>
+              <span class="badge badge-green">شهر 5-6</span>
+              <span class="phase-chevron">▼</span>
+            </div>
+          </div>
+          <div class="phase-body">
+            <div class="progress-bar"><div class="progress-fill" id="p3bar" style="width:0%;background:var(--green)"></div></div>
+            <div class="checklist" id="checklist-p3">
+              <div class="check-item" onclick="toggleCheck(this,'p3_0')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">استراتيجية مكتوبة</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p3_1')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">إدارة المخاطر</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p3_2')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Trading Journal</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p3_3')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Backtesting</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p3_4')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Psychology of Trading</span></div>
+              <div class="check-item" onclick="toggleCheck(this,'p3_5')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">Portfolio Management</span></div>
+            </div>
+            <div class="resources">
+              <div class="res-title">المصادر</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--green)"></div>TradingView Backtesting</div>
+              <div class="res-item"><div class="res-dot" style="background:var(--green)"></div>Trading Journal — سجل يدوي</div>
+            </div>
+            <div style="margin-top:10px;font-size:12px;color:var(--t3)">⏱ 60+ دقيقة يومياً</div>
+          </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="phase" id="phase4">
+          <div class="phase-header" onclick="togglePhase('phase4')">
+            <div class="phase-header-right">
+              <div class="phase-num" style="background:var(--purple-d);color:var(--purple)">٤</div>
+              <div>
+                <div class="phase-meta">المرحلة الرابعة: الانطلاق</div>
+                <div class="phase-sub">بعد الشهر 6 · السوق الحقيقي</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-12">
+              <span class="badge badge-purple" id="p4badge">0/4</span>
+              <span class="badge badge-purple">بعد الشهر 6</span>
+              <span class="phase-chevron">▼</span>
+            </div>
+          </div>
+          <div class="phase-body" id="phase4body">
+            <div id="phase4locked" class="locked-overlay" style="display:none">
+              <div class="locked-icon">🔒</div>
+              <div style="font-size:14px;font-weight:500">تُفتح بعد إكمال المرحلة الثالثة</div>
+            </div>
+            <div id="phase4content">
+              <div class="progress-bar"><div class="progress-fill" id="p4bar" style="width:0%;background:var(--purple)"></div></div>
+              <div class="checklist" id="checklist-p4">
+                <div class="check-item" onclick="toggleCheck(this,'p4_0')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">بناء AI Agent</span></div>
+                <div class="check-item" onclick="toggleCheck(this,'p4_1')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">توقيع العقد مع عبدالله</span></div>
+                <div class="check-item" onclick="toggleCheck(this,'p4_2')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">دخول السوق الحقيقي</span></div>
+                <div class="check-item" onclick="toggleCheck(this,'p4_3')"><div class="check-box"><span class="check-tick">✓</span></div><span class="check-label">مشاريع مستقبلية: كافي، حلاق</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="page" id="page-notes">
+        <div class="section-header">
+          <div class="section-title">الملاحظات</div>
+          <button class="add-btn" onclick="addNote()">+ إضافة ملاحظة</button>
+        </div>
+        <div id="notesList"></div>
+      </div>
+
+      <!-- MEDIA -->
+      <div class="page" id="page-media">
+        <div class="section-header">
+          <div class="section-title">الوسائط</div>
+        </div>
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+          <div style="font-size:24px;margin-bottom:8px">📷</div>
+          <div style="font-size:13px">اضغط لرفع صورة</div>
+          <div class="text-dim text-sm mt-4">JPG, PNG, WEBP</div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleUpload(event)">
+        <div id="storageWarn" style="display:none;background:var(--amber-d);border:1px solid var(--amber-b);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:12px">
+          ⚠️ المساحة المحلية قريبة من الامتلاء. احذف بعض الصور.
+        </div>
+        <div class="media-grid" id="mediaGrid"></div>
+      </div>
+
+      <!-- ABDULLAH -->
+      <div class="page" id="page-abdullah">
+        <div class="section-header">
+          <div class="section-title">لوحة عبدالله</div>
+          <div class="text-sm text-dim">للقراءة فقط</div>
+        </div>
+        <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+          <div class="circ-wrap">
+            <svg class="circ-svg" width="120" height="120" viewBox="0 0 120 120">
+              <circle class="circ-bg" cx="60" cy="60" r="50"/>
+              <circle class="circ-fill" id="circFill" cx="60" cy="60" r="50" stroke="var(--blue)" stroke-dasharray="314" stroke-dashoffset="314"/>
+              <text id="circText" class="circ-label" x="60" y="60" fill="var(--t)" style="transform:rotate(90deg);transform-origin:60px 60px;font-family:inherit;font-weight:600;font-size:22px">0%</text>
+            </svg>
+            <div class="text-sm text-dim">التقدم الكلي</div>
+          </div>
+          <div style="flex:1;min-width:220px">
+            <div class="grid-2">
+              <div class="stat-card">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value" id="abd-streak" style="color:var(--amber)">0</div>
+                <div class="stat-sub">يوم متواصل</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">آخر نشاط</div>
+                <div class="stat-value" id="abd-lastActive" style="font-size:14px;margin-top:4px">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">الملاحظات</div>
+                <div class="stat-value" id="abd-notes">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">الصور</div>
+                <div class="stat-value" id="abd-media">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mt-16">
+          <div class="card-title">حالة المراحل</div>
+          <div id="abd-phases"></div>
+        </div>
+      </div>
+
+      <!-- AI AGENT -->
+      <div class="page" id="page-agent" style="padding:0;margin:-24px">
+        <div class="chat-wrap">
+          <div class="chat-messages" id="chatMessages">
+            <div class="msg system">مرحباً! أنا مساعدك في التداول. اسألني عن أي مفهوم تعلمته.</div>
+          </div>
+          <div class="chat-input-wrap">
+            <textarea class="chat-input" id="chatInput" placeholder="اسأل عن RSI، MACD، أو أي مفهوم..." rows="1" onkeydown="handleChatKey(event)"></textarea>
+            <button class="chat-send" onclick="sendMessage()">إرسال</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────
+const GEMINI_API_KEY = "AIzaSyC-AvFYUYOaZRozzOq2IRKiTcl7x_AC0JQ";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
+const SYSTEM_PROMPT = `أنت مدرب تداول متخصص تساعد متداولاً مبتدئاً ناطقاً بالعربية على تعلم التحليل الفني وإدارة المخاطر وسيكولوجية التداول. ردودك دائماً باللغة العربية. كن مباشراً وواضحاً ومشجعاً.`;
+
+// ─── STORAGE HELPERS ──────────────────────────────────
+const KEY = k => 'trading_' + k;
+const get = k => { try { return JSON.parse(localStorage.getItem(KEY(k))) } catch(e) { return null } };
+const set = (k,v) => { try { localStorage.setItem(KEY(k), JSON.stringify(v)) } catch(e) { checkStorage() } };
+
+// ─── STREAK ───────────────────────────────────────────
+function updateStreak() {
+  const today = new Date().toDateString();
+  const last = get('lastVisit');
+  let streak = get('streak') || 0;
+  if (last !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    streak = (last === yesterday) ? streak + 1 : 1;
+    set('streak', streak);
+    set('lastVisit', today);
+    set('lastActive', new Date().toLocaleDateString('ar-SA'));
+  }
+  document.getElementById('streakRing').textContent = streak;
+  document.getElementById('streakNum').textContent = streak;
+  const abd = document.getElementById('abd-streak');
+  if (abd) abd.textContent = streak;
+}
+
+// ─── DATES ────────────────────────────────────────────
+function updateTime() {
+  const now = new Date();
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  const s = now.getSeconds().toString().padStart(2,'0');
+  document.getElementById('liveTime').textContent = `${h}:${m}:${s}`;
+}
+function updateDate() {
+  const now = new Date();
+  const greg = now.toLocaleDateString('ar-SA-u-ca-gregory', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const hijri = now.toLocaleDateString('ar-SA-u-ca-islamic', {year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('dateDisplay').textContent = `${greg} · ${hijri}`;
+}
+
+// ─── USER NAME ────────────────────────────────────────
+function loadName() {
+  const name = get('name') || '';
+  document.getElementById('welcomeMsg').textContent = name ? `أهلاً ${name} 👋` : 'أهلاً 👋';
+  if (name) document.getElementById('nameInput').value = name;
+}
+function saveName() {
+  const v = document.getElementById('nameInput').value.trim();
+  if (v) { set('name', v); loadName(); }
+  closeSettings();
+}
+
+// ─── NAVIGATION ───────────────────────────────────────
+const pageTitles = {home:'الرئيسية',timeline:'الخطة الزمنية',notes:'الملاحظات',media:'الوسائط',abdullah:'لوحة عبدالله',agent:'AI Agent'};
+function goTo(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageTitles[id] || id;
+  closeSidebar();
+  if (id === 'home') refreshHome();
+  if (id === 'abdullah') refreshAbdullah();
+  if (id === 'notes') renderNotes();
+  if (id === 'media') renderMedia();
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlayBg').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlayBg').style.display = 'none';
+}
+
+// ─── SETTINGS ─────────────────────────────────────────
+function openSettings() { document.getElementById('settingsModal').classList.add('open'); }
+function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+function resetStreak() {
+  if (confirm('تأكيد إعادة تعيين الـ Streak؟')) {
+    set('streak', 0); set('lastVisit', null);
+    document.getElementById('streakRing').textContent = '0';
+    document.getElementById('streakNum').textContent = '0';
+    closeSettings();
+  }
+}
+function clearAll() {
+  if (confirm('سيتم مسح جميع البيانات. متأكد؟')) {
+    Object.keys(localStorage).filter(k => k.startsWith('trading_')).forEach(k => localStorage.removeItem(k));
+    location.reload();
+  }
+}
+
+// ─── CHECKLIST ────────────────────────────────────────
+const phases = {
+  p1: {total:8, bar:'p1bar', badge:'p1badge', color:'var(--blue)'},
+  p2: {total:7, bar:'p2bar', badge:'p2badge', color:'var(--amber)'},
+  p3: {total:6, bar:'p3bar', badge:'p3badge', color:'var(--green)'},
+  p4: {total:4, bar:'p4bar', badge:'p4badge', color:'var(--purple)'},
+};
+function toggleCheck(el, key) {
+  const checks = get('checks') || {};
+  checks[key] = !checks[key];
+  set('checks', checks);
+  el.classList.toggle('done', checks[key]);
+  updateAllProgress();
+}
+function loadChecks() {
+  const checks = get('checks') || {};
+  Object.keys(checks).forEach(key => {
+    if (!checks[key]) return;
+    document.querySelectorAll('[onclick*="'+key+'"]').forEach(el => el.classList.add('done'));
+  });
+  updateAllProgress();
+}
+function getPhaseProgress(p) {
+  const checks = get('checks') || {};
+  const ph = phases[p];
+  let done = 0;
+  for (let i = 0; i < ph.total; i++) { if (checks[`${p}_${i}`]) done++; }
+  return { done, total: ph.total, pct: Math.round(done/ph.total*100) };
+}
+function updateAllProgress() {
+  let totalDone = 0, totalItems = 0;
+  ['p1','p2','p3','p4'].forEach(p => {
+    const {done, total, pct} = getPhaseProgress(p);
+    totalDone += done; totalItems += total;
+    document.getElementById(phases[p].bar).style.width = pct + '%';
+    document.getElementById(phases[p].badge).textContent = `${done}/${total}`;
+  });
+  const overall = Math.round(totalDone/totalItems*100);
+  document.getElementById('totalPct').textContent = overall + '%';
+  document.getElementById('totalBar').style.width = overall + '%';
+  document.getElementById('timelineOverall').textContent = `${totalDone}/${totalItems} مهمة مكتملة`;
+
+  // Lock phase 4
+  const p3 = getPhaseProgress('p3');
+  const locked = document.getElementById('phase4locked');
+  const content = document.getElementById('phase4content');
+  if (locked && content) {
+    if (p3.pct < 100) { locked.style.display = 'flex'; content.style.display = 'none'; }
+    else { locked.style.display = 'none'; content.style.display = 'block'; }
+  }
+
+  // Current phase for home
+  const p1 = getPhaseProgress('p1');
+  const p2 = getPhaseProgress('p2');
+  const p3d = getPhaseProgress('p3');
+  let currentPhase = 'المرحلة ١', currentProg = `${p1.done}/${p1.total} مهمة`;
+  if (p1.pct === 100 && p2.pct < 100) { currentPhase = 'المرحلة ٢'; currentProg = `${p2.done}/${p2.total} مهمة`; }
+  else if (p2.pct === 100 && p3d.pct < 100) { currentPhase = 'المرحلة ٣'; currentProg = `${p3d.done}/${p3d.total} مهمة`; }
+  else if (p3d.pct === 100) { currentPhase = 'المرحلة ٤'; }
+  document.getElementById('currentPhase').textContent = currentPhase;
+  document.getElementById('currentPhaseProgress').textContent = currentProg;
+}
+
+// ─── PHASE TOGGLE ─────────────────────────────────────
+function togglePhase(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ─── NOTES ────────────────────────────────────────────
+function getNotes() { return get('notes') || []; }
+function saveNotes(notes) { set('notes', notes); }
+function addNote() {
+  const notes = getNotes();
+  notes.unshift({ id: Date.now(), title: '', body: '', date: new Date().toLocaleDateString('ar-SA') });
+  saveNotes(notes);
+  renderNotes();
+  refreshHome();
+}
+function renderNotes() {
+  const notes = getNotes();
+  const el = document.getElementById('notesList');
+  if (!notes.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div>لا توجد ملاحظات بعد</div></div>'; return; }
+  el.innerHTML = notes.map((n,i) => `
+    <div class="note-card">
+      <div class="note-header">
+        <input class="note-title-input" value="${esc(n.title)}" placeholder="عنوان الملاحظة" oninput="updateNote(${n.id},'title',this.value)">
+        <button class="btn-icon" onclick="deleteNote(${n.id})">🗑</button>
+      </div>
+      <textarea class="note-body-input" placeholder="اكتب ملاحظتك هنا..." oninput="updateNote(${n.id},'body',this.value);autoResize(this)">${esc(n.body)}</textarea>
+      <div class="note-date">${n.date}</div>
+    </div>
+  `).join('');
+  document.querySelectorAll('.note-body-input').forEach(autoResize);
+}
+function updateNote(id, field, val) {
+  const notes = getNotes();
+  const n = notes.find(n => n.id === id);
+  if (n) { n[field] = val; saveNotes(notes); refreshHome(); }
+}
+function deleteNote(id) {
+  if (!confirm('حذف الملاحظة؟')) return;
+  saveNotes(getNotes().filter(n => n.id !== id));
+  renderNotes(); refreshHome();
+}
+function autoResize(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+
+// ─── MEDIA ────────────────────────────────────────────
+function getMedia() { return get('media') || []; }
+function saveMedia(m) { set('media', m); checkStorage(); }
+function handleUpload(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const media = getMedia();
+      media.unshift({ id: Date.now(), src: ev.target.result, caption: '' });
+      saveMedia(media);
+      renderMedia();
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+function renderMedia() {
+  const media = getMedia();
+  const grid = document.getElementById('mediaGrid');
+  if (!media.length) { grid.innerHTML = ''; return; }
+  grid.innerHTML = media.map(m => `
+    <div class="media-item">
+      <img src="${m.src}" alt="">
+      <div class="media-caption">
+        <input value="${esc(m.caption)}" placeholder="وصف..." oninput="updateCaption(${m.id},this.value)">
+      </div>
+      <button class="media-del" onclick="deleteMedia(${m.id})">✕</button>
+    </div>
+  `).join('');
+}
+function updateCaption(id, val) {
+  const media = getMedia();
+  const m = media.find(m => m.id === id);
+  if (m) { m.caption = val; saveMedia(media); }
+}
+function deleteMedia(id) {
+  if (!confirm('حذف الصورة؟')) return;
+  saveMedia(getMedia().filter(m => m.id !== id));
+  renderMedia();
+}
+function checkStorage() {
+  let used = 0;
+  for (let k in localStorage) { if (k.startsWith('trading_')) used += (localStorage[k].length * 2); }
+  document.getElementById('storageWarn').style.display = used > 4*1024*1024 ? 'block' : 'none';
+}
+
+// ─── ABDULLAH ─────────────────────────────────────────
+function refreshAbdullah() {
+  const streak = get('streak') || 0;
+  const lastActive = get('lastActive') || '—';
+  document.getElementById('abd-streak').textContent = streak;
+  document.getElementById('abd-lastActive').textContent = lastActive;
+  document.getElementById('abd-notes').textContent = getNotes().length;
+  document.getElementById('abd-media').textContent = getMedia().length;
+
+  let totalDone = 0, totalItems = 0;
+  const phaseNames = {p1:'المرحلة ١: الأساس',p2:'المرحلة ٢: التحليل',p3:'المرحلة ٣: التطبيق',p4:'المرحلة ٤: الانطلاق'};
+  const phaseColors = {p1:'var(--blue)',p2:'var(--amber)',p3:'var(--green)',p4:'var(--purple)'};
+  let phasesHtml = '';
+  ['p1','p2','p3','p4'].forEach(p => {
+    const {done, total, pct} = getPhaseProgress(p);
+    totalDone += done; totalItems += total;
+    const icon = pct === 100 ? '✅' : pct > 0 ? '🔄' : '⭕';
+    phasesHtml += `
+      <div class="abd-phase-row">
+        <span>${icon}</span>
+        <span style="flex:1">${phaseNames[p]}</span>
+        <span style="color:${phaseColors[p]};font-weight:500">${done}/${total}</span>
+        <span style="color:var(--t3);font-size:12px;margin-right:8px">${pct}%</span>
+      </div>
+    `;
+  });
+  document.getElementById('abd-phases').innerHTML = phasesHtml;
+
+  const overall = Math.round(totalDone/totalItems*100);
+  const circumference = 314;
+  const offset = circumference - (overall/100*circumference);
+  document.getElementById('circFill').style.strokeDashoffset = offset;
+  document.getElementById('circText').textContent = overall + '%';
+}
+
+// ─── HOME REFRESH ─────────────────────────────────────
+function refreshHome() {
+  document.getElementById('notesCount').textContent = getNotes().length;
+  const notes = getNotes().slice(0,3);
+  const el = document.getElementById('recentNotes');
+  if (!notes.length) { el.innerHTML = '<div style="color:var(--t3);font-size:13px;padding:8px 0">لا توجد ملاحظات بعد</div>'; return; }
+  el.innerHTML = notes.map(n => `
+    <div style="padding:10px 0;border-bottom:1px solid var(--b);cursor:pointer" onclick="goTo('notes')">
+      <div style="font-size:13px;font-weight:500">${n.title || 'بدون عنوان'}</div>
+      <div class="note-preview">${n.body || '...'}</div>
+      <div style="font-size:11px;color:var(--t3);margin-top:3px">${n.date}</div>
+    </div>
+  `).join('');
+}
+
+// ─── AI CHAT ──────────────────────────────────────────
+let chatHistory = [];
+function loadChatHistory() {
+  chatHistory = get('chatHistory') || [];
+  const container = document.getElementById('chatMessages');
+  chatHistory.forEach(m => appendMsg(m.role, m.text));
+}
+function appendMsg(role, text) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
+  div.textContent = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  chatHistory.push({ role: 'user', text });
+  appendMsg('user', text);
+
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'typing';
+  typing.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  document.getElementById('chatMessages').appendChild(typing);
+  document.getElementById('chatMessages').scrollTop = 99999;
+
+  try {
+    const contents = [
+      { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
+      { role: 'model', parts: [{ text: 'فهمت. أنا مدربك في التداول، اسألني أي شيء.' }] },
+      ...chatHistory.map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }]
+      }))
+    ];
+    const res = await fetch(GEMINI_API_URL + GEMINI_API_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents })
+    });
+    const data = await res.json();
+    typing.remove();
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'حدث خطأ، حاول مرة أخرى.';
+    chatHistory.push({ role: 'ai', text: reply });
+    set('chatHistory', chatHistory);
+    appendMsg('ai', reply);
+  } catch(e) {
+    typing.remove();
+    appendMsg('ai', 'خطأ في الاتصال. تحقق من الإنترنت.');
+  }
+}
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+// ─── UTILS ────────────────────────────────────────────
+function esc(str) { return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── INIT ─────────────────────────────────────────────
+updateStreak();
+updateDate();
+updateTime();
+setInterval(updateTime, 1000);
+loadName();
+loadChecks();
+refreshHome();
+loadChatHistory();
+</script>
+</body>
+</html>
